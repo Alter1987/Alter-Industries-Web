@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Alter</title>
+<title>Your Name</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -65,14 +65,28 @@ footer{margin-top:4rem;color:var(--muted);font-size:.9rem}
    save, and the whole page updates. Delete a line to hide it.
    ============================================================ */
 const SITE = {
-  name: "Alter",
+  name: "Your Name",
   role: "Founder",
   company: "Alter Industries",
+  tagline: "One sentence about what you do and who it’s for.",
 
   // Main buttons under your name (first one is highlighted)
   buttons: [
     { label: "Email me", url: "alterindustriesrr@gmail.com" },
     { label: "Visit the company", url: "https://discord.gg/9ZGD5FzkKk" }
+  ],
+
+  // Each string is its own paragraph
+  about: [
+    "Write a short intro about yourself here: who you are, where you’re based, and what drives you.",
+    "Add a second paragraph about your company’s story or mission if you like."
+  ],
+
+  servicesTitle: "What the company does",
+  services: [
+    { title: "Service or product one", text: "A short line explaining it." },
+    { title: "Service or product two", text: "A short line explaining it." },
+    { title: "Service or product three", text: "A short line explaining it." }
   ],
 
   // Every link you want on the page
