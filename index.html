@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Your Name</title>
+<title>Alter</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -20,10 +20,12 @@
 html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*::before,*::after{box-sizing:inherit}
 body{margin:0;background:var(--bg);color:var(--ink);font:400 1.0625rem/1.6 var(--body);-webkit-font-smoothing:antialiased}
-main{max-width:46rem;margin:0 auto;padding:clamp(2rem,8vw,5rem) 1.5rem 3rem}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+main{position:relative;z-index:1;max-width:46rem;margin:0 auto;padding:clamp(2rem,8vw,5rem) 1.5rem 3rem}
 h1,h2{font-family:var(--head);margin:0;line-height:1.05;letter-spacing:-.02em}
 h1{font-size:clamp(2.8rem,12vw,5.5rem);font-weight:800}
 h2{font-size:1.5rem;font-weight:600;margin-bottom:1rem}
+.photo{display:block;width:clamp(7rem,28vw,10rem);aspect-ratio:1/1;object-fit:cover;border-radius:1.5rem;border:3px solid var(--accent);box-shadow:0 0 40px -8px var(--accent);margin:0 0 1.75rem;background:var(--surface)}
 .role{margin:1rem 0 0;font-size:1.2rem;color:var(--muted)}
 .role b{color:var(--ink);font-weight:600}
 .tagline{margin:1.5rem 0 0;font-size:1.35rem;max-width:34rem}
@@ -35,19 +37,21 @@ a:focus-visible{outline:3px solid var(--accent-text);outline-offset:3px}
 section{margin-top:clamp(3rem,9vw,5rem)}
 p{margin:0 0 1rem;max-width:38rem}
 .services{list-style:none;margin:0;padding:0;display:grid;gap:.75rem}
-.services li{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--accent);border-radius:.4rem;padding:1rem 1.2rem}
+.services li{background:rgba(13,13,18,.82);border:1px solid var(--line);border-left:5px solid var(--accent);border-radius:.4rem;padding:1rem 1.2rem}
 .services strong{display:block;font-family:var(--head);font-size:1.15rem}
 .services span{color:var(--muted)}
 .links{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
 .links a{display:flex;justify-content:space-between;gap:1rem;padding:1rem .25rem;border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none;font-weight:500}
 .links a span{color:var(--muted);font-weight:400;overflow-wrap:anywhere;text-align:right}
-.links a:hover{background:var(--surface);color:var(--accent-text)}
+.links a:hover{background:rgba(13,13,18,.82);color:var(--accent-text)}
 footer{margin-top:4rem;color:var(--muted);font-size:.9rem}
 </style>
 </head>
 <body>
+<canvas id="bg" aria-hidden="true"></canvas>
 <main>
   <header>
+    <img class="photo" id="photo" alt="">
     <h1 id="name"></h1>
     <p class="role" id="role"></p>
     <p class="tagline" id="tagline"></p>
@@ -69,6 +73,11 @@ const SITE = {
   role: "Founder",
   company: "Alter Industries",
 
+  // Profile picture: upload your image to the same folder as this file
+  // (same GitHub repo), then put its exact file name here.
+  // Leave it as "" to hide the picture.
+  photo: "profile.jpg",
+
   // Main buttons under your name (first one is highlighted)
   buttons: [
     { label: "Email me", url: "alterindustriesrr@gmail.com" },
@@ -77,7 +86,7 @@ const SITE = {
 
   // Each string is its own paragraph
   about: [
-    "Hi, I do YouTube and TikTok. I also do Building/Circuits in Rec Room/Revivals Radium and Meow.net.",
+    "Hi, I do YouTube and TikTok. I also do Building/Circuits in Rec Room/Revivals Radium and Meow.net."
   ],
 
   servicesTitle: "What the company does",
@@ -97,7 +106,10 @@ const SITE = {
 
   // Colors: change the hex codes to restyle the whole page
   primary: "#000000",       // page background
-  secondary: "#5018dd",     // buttons, highlights, borders
+  secondary: "#5018dd",     // buttons, highlights, borders, background dots
+
+  // Animated background that reacts to your mouse / finger. true = on, false = plain
+  interactiveBackground: true,
 
   footer: "© 2026 Alter Industries"
 };
@@ -107,10 +119,21 @@ const SITE = {
   const $ = id => document.getElementById(id);
   const root = document.documentElement;
   const show = (id, on) => { if(!on) $(id).style.display = "none"; };
+  // Bare email addresses automatically become mailto: links
+  const fixUrl = u => (/^[^\s@\/:]+@[^\s@\/:]+$/.test(u) ? "mailto:" + u : u);
   const pretty = u => u.replace(/^mailto:/,"").replace(/^https?:\/\//,"").replace(/\/$/,"");
+  const external = u => !u.startsWith("mailto:");
 
   document.title = SITE.company ? SITE.name + " · " + SITE.company : SITE.name;
   $("name").textContent = SITE.name;
+
+  // Profile picture (hidden if empty or if the file can't be found)
+  const photo = $("photo");
+  if (SITE.photo) {
+    photo.src = SITE.photo;
+    photo.alt = SITE.name + " profile picture";
+    photo.onerror = () => { photo.style.display = "none"; };
+  } else photo.style.display = "none";
 
   const role = $("role");
   if (SITE.role || SITE.company) {
@@ -123,10 +146,11 @@ const SITE = {
   show("tagline", SITE.tagline);
 
   (SITE.buttons || []).forEach((b,i) => {
+    const url = fixUrl(b.url);
     const a = document.createElement("a");
     a.className = "btn" + (i === 0 ? " primary" : "");
-    a.href = b.url; a.textContent = b.label;
-    if (!b.url.startsWith("mailto:")) { a.target = "_blank"; a.rel = "noopener"; }
+    a.href = url; a.textContent = b.label;
+    if (external(url)) { a.target = "_blank"; a.rel = "noopener"; }
     $("btns").append(a);
   });
 
@@ -143,12 +167,13 @@ const SITE = {
   show("services-sec", (SITE.services || []).length);
 
   (SITE.links || []).forEach(l => {
+    const url = fixUrl(l.url);
     const li = document.createElement("li");
     const a = document.createElement("a");
-    a.href = l.url;
-    if (!l.url.startsWith("mailto:")) { a.target = "_blank"; a.rel = "noopener"; }
+    a.href = url;
+    if (external(url)) { a.target = "_blank"; a.rel = "noopener"; }
     const n = document.createElement("div"); n.textContent = l.label;
-    const s = document.createElement("span"); s.textContent = pretty(l.url);
+    const s = document.createElement("span"); s.textContent = pretty(url);
     a.append(n, s); li.append(a); $("links").append(li);
   });
   show("links-sec", (SITE.links || []).length);
@@ -159,6 +184,72 @@ const SITE = {
   // Apply colors from the config
   root.style.setProperty("--bg", SITE.primary);
   root.style.setProperty("--accent", SITE.secondary);
+
+  /* ---------- Interactive background ---------- */
+  const canvas = $("bg");
+  if (!SITE.interactiveBackground) { canvas.style.display = "none"; return; }
+
+  const ctx = canvas.getContext("2d");
+  const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const hex = SITE.secondary.replace("#","");
+  const rgb = [0,2,4].map(i => parseInt(hex.substr(i,2),16)).join(",");
+  const LINK = 130, MOUSE = 170;
+  let w, h, dpr, dots = [], mouse = { x: -9999, y: -9999 };
+
+  function resize(){
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = window.innerWidth; h = window.innerHeight;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const count = Math.min(110, Math.round(w * h / 14000));
+    dots = Array.from({length: count}, () => ({
+      x: Math.random()*w, y: Math.random()*h,
+      vx: (Math.random()-.5)*.35, vy: (Math.random()-.5)*.35,
+      r: Math.random()*1.6 + .8
+    }));
+    if (still) draw();
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    for (const d of dots) {
+      // gentle push away from the pointer
+      const mx = d.x - mouse.x, my = d.y - mouse.y, md = Math.hypot(mx,my);
+      if (md < 120 && md > 0) { d.x += mx/md * 1.2; d.y += my/md * 1.2; }
+      d.x += d.vx; d.y += d.vy;
+      if (d.x < 0 || d.x > w) d.vx *= -1;
+      if (d.y < 0 || d.y > h) d.vy *= -1;
+    }
+    for (let i = 0; i < dots.length; i++) {
+      const a = dots[i];
+      ctx.fillStyle = "rgba(" + rgb + ",.8)";
+      ctx.beginPath(); ctx.arc(a.x, a.y, a.r, 0, 6.2832); ctx.fill();
+      for (let j = i+1; j < dots.length; j++) {
+        const b = dots[j], dist = Math.hypot(a.x-b.x, a.y-b.y);
+        if (dist < LINK) {
+          ctx.strokeStyle = "rgba(" + rgb + "," + (.45*(1-dist/LINK)) + ")";
+          ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+        }
+      }
+      // glowing lines from nearby dots to the pointer
+      const pd = Math.hypot(a.x-mouse.x, a.y-mouse.y);
+      if (pd < MOUSE) {
+        ctx.strokeStyle = "rgba(155,123,255," + (.7*(1-pd/MOUSE)) + ")";
+        ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(mouse.x,mouse.y); ctx.stroke();
+      }
+    }
+  }
+
+  function loop(){ draw(); requestAnimationFrame(loop); }
+
+  window.addEventListener("resize", resize);
+  window.addEventListener("pointermove", e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+  window.addEventListener("pointerleave", () => { mouse.x = mouse.y = -9999; });
+  window.addEventListener("pointerup", e => { if (e.pointerType === "touch") mouse.x = mouse.y = -9999; });
+  resize();
+  if (!still) loop();
 })();
 </script>
 </body>
