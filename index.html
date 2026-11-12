@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Alter</title>
+<title>Your Name</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -11,22 +11,11 @@
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
-  --bg:#eef1f5; --surface:#ffffff; --ink:#122033; --muted:#55637a; --line:#d3dae5;
-  --accent:#1f5fd6; --on-accent:#ffffff;
+  color-scheme:dark;
+  --bg:#000000; --surface:#0d0d12; --ink:#ffffff; --muted:#a6a6b3; --line:#26262e;
+  --accent:#5018dd; --accent-text:#9b7bff; --on-accent:#ffffff;
   --head:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
   --body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
-}
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    color-scheme:dark;
-    --bg:#000000; --surface:#000000; --ink:#e8edf5; --muted:#9aa8bd; --line:#2a374b;
-    --accent:#5018DD --on-accent:#0e1623;
-  }
-}
-:root[data-theme="dark"]{
-  color-scheme:dark;
-  --bg:#0e1623; --surface:#16202f; --ink:#e8edf5; --muted:#9aa8bd; --line:#2a374b;
-  --accent:#6ea2ff; --on-accent:#0e1623;
 }
 html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*::before,*::after{box-sizing:inherit}
@@ -39,9 +28,10 @@ h2{font-size:1.5rem;font-weight:600;margin-bottom:1rem}
 .role b{color:var(--ink);font-weight:600}
 .tagline{margin:1.5rem 0 0;font-size:1.35rem;max-width:34rem}
 .btns{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:2rem}
-.btn{display:inline-block;padding:.7rem 1.2rem;border-radius:.6rem;font-weight:600;text-decoration:none;border:2px solid var(--accent);color:var(--accent)}
+.btn{display:inline-block;padding:.7rem 1.2rem;border-radius:.6rem;font-weight:600;text-decoration:none;border:2px solid var(--accent);color:var(--ink)}
 .btn.primary{background:var(--accent);color:var(--on-accent)}
-a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.btn:hover{background:var(--accent);color:var(--on-accent)}
+a:focus-visible{outline:3px solid var(--accent-text);outline-offset:3px}
 section{margin-top:clamp(3rem,9vw,5rem)}
 p{margin:0 0 1rem;max-width:38rem}
 .services{list-style:none;margin:0;padding:0;display:grid;gap:.75rem}
@@ -51,7 +41,7 @@ p{margin:0 0 1rem;max-width:38rem}
 .links{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
 .links a{display:flex;justify-content:space-between;gap:1rem;padding:1rem .25rem;border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none;font-weight:500}
 .links a span{color:var(--muted);font-weight:400;overflow-wrap:anywhere;text-align:right}
-.links a:hover{background:var(--surface)}
+.links a:hover{background:var(--surface);color:var(--accent-text)}
 footer{margin-top:4rem;color:var(--muted);font-size:.9rem}
 </style>
 </head>
@@ -110,8 +100,8 @@ const SITE = {
   ],
 
   // Colors: change the hex codes to restyle the whole page
-  accent: "#1f5fd6",        // light mode accent
-  accentDark: "#6ea2ff",    // dark mode accent
+  primary: "#000000",       // page background
+  secondary: "#5018dd",     // buttons, highlights, borders
 
   footer: "© 2026 Alter Industries"
 };
@@ -170,13 +160,9 @@ const SITE = {
   $("footer").textContent = SITE.footer || "";
   show("footer", SITE.footer);
 
-  // Apply accent colors from the config
-  const st = document.createElement("style");
-  st.textContent =
-    ":root{--accent:" + SITE.accent + "}" +
-    "@media (prefers-color-scheme:dark){:root:not([data-theme=\"light\"]){--accent:" + SITE.accentDark + "}}" +
-    ":root[data-theme=\"dark\"]{--accent:" + SITE.accentDark + "}";
-  document.head.append(st);
+  // Apply colors from the config
+  root.style.setProperty("--bg", SITE.primary);
+  root.style.setProperty("--accent", SITE.secondary);
 })();
 </script>
 </body>
